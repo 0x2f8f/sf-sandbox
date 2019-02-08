@@ -10,6 +10,9 @@ class QuestionsCommand extends Command
 {
     private $output;
 
+    private const MAX_LENGTH = 6;
+    private const MAX_ITERATIONS = 10;
+
     // the name of the command (the part after "bin/console")
     protected static $defaultName = 'app:svy:questions';
 
@@ -18,11 +21,22 @@ class QuestionsCommand extends Command
         // ...
     }
 
+    /**
+     * @return OutputInterface
+     */
+    private function getOutput()
+    {
+        return $this->output;
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->output = $output;
         //$this->q1();
         //$this->q2();
+        //$this->q3();
+
+        $this->q4();
     }
 
     private function q1()
@@ -30,12 +44,12 @@ class QuestionsCommand extends Command
         //if ($user->getRole() === User::ADMIN_ROLE)
 
         /**
-         * 1. Правильнее проверять по hasRole, иначе будет много if.
-         * 2. У Role лучше объявить сущность Role, которая может в себя включать и другие роли.
-         *    Тогда реализация будет не только через ===
-         * 3. Если и обращаться к константам, то к UserRole::ADMIN_ROLE или Credential::ADMIN_ROLE,
-         *    чтобы классы отвечали за свою область видимости
+         * Правильнее проверять по hasRole, иначе будет много if по каждой роли. Одна роль может быть включена в другую роль.
+         * Юзер может иметь несколько ролей
          */
+
+        //правильный вариант:
+        //if ($user->hasRole(User::ADMIN_ROLE))
     }
 
     private function q2()
@@ -51,12 +65,16 @@ class QuestionsCommand extends Command
             $assoc[$i]=0;
         }
         $j = 0;
-        foreach ($list as $item) {
+
+        while ($item = array_pop($list)) {
             $assoc[$item]++;
             $j++;
         }
+
+        $list = [];
         foreach ($assoc as $i => $item) {
             while($item-->0) {
+                $list[]=$i;
                 $this->output->writeln($i);
                 $j++;
             }
@@ -65,9 +83,12 @@ class QuestionsCommand extends Command
         $this->output->writeln('------');
         $this->output->writeln(count($list));
         $this->output->writeln($j);
+
+        //big O(2n + 10)
     }
 
-    private function q3(){
+    private function q3()
+    {
         /*
             Напиши декоратор для класса DefaultMailer, который бы логировал каждое отправленное сообщение.
             class DefaultMailer implements Mailer
@@ -79,9 +100,81 @@ class QuestionsCommand extends Command
             }
          */
 
-        //$customMailer = $this->getContainer()->get('custom_mailer');
-        //$resultSend = $customMailer->mail('test message');
+        $customMailer = $this->getContainer()->get('custom_mailer');
+        $resultSend = $customMailer->mail('test message');
     }
 
+    private function q4()
+    {
+        /*
+        Что делает приведенный ниже код и какие в нём есть ошибки?
+        private const MAX_LENGTH = 6;
+
+        public function generateCode(): string
+        {
+          $code = [];
+          for ($i = 0; $i < self::MAX_LENGTH; $i++) {
+            $code[$i] = rand(0, 9);
+          }
+
+          if (array_count_values($code) < self::MAX_LENGTH / 2) {
+            return $this->generateCode();
+          }
+
+          return implode('', $code);
+        }
+         */
+
+        $code = $this->generateCode();
+//        $this->getOutput()->writeln($code);
+
+        $code = $this->generateCode2();
+//        $this->getOutput()->writeln($code);
+    }
+
+
+    /**
+     * 1ый алгоритм генерации кода для Q4
+     *
+     * @return string
+     */
+    public function generateCode(): string
+    {
+        $code = [];
+        for ($i = 0; $i < self::MAX_LENGTH; $i++) {
+            $code[$i] = rand(0, 9);
+        }
+
+        //if (array_count_values($code) < self::MAX_LENGTH / 2) {
+        // 1. массив сравнивается с числом
+        // 2. + не хватает итераций
+        if (count(array_count_values($code)) < self::MAX_LENGTH / 2) {
+            return $this->generateCode();
+        }
+
+        return implode('', $code);
+    }
+
+    /**
+     * 2ой алгоритм генерации кода для Q4
+     *
+     * @return string
+     */
+    public function generateCode2(): string
+    {
+        /**
+         * 1. Код плохо читаем.
+         * 2. Меньше уникальности
+         */
+        $length = self::MAX_LENGTH;
+        for ($i = 0; $i < self::MAX_ITERATIONS; $i++) {
+            $code = sprintf("%0{$length}s", mt_rand(0, 10 ** $length) - 1);
+            if (max(count_chars($code, 1)) < $length / 2) {
+                return $code;
+            }
+        }
+
+        return $code;
+    }
 
 }

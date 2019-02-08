@@ -24,8 +24,24 @@ class CustomMailer
      */
     public function mail(string $message)
     {
-        $result = $this->getMailer($this->mailer)->mail($message);
+        $result = $this->getMailer()->mail($message);
         $this->getLogger()->add($message, $result);
         return $result;
+    }
+
+    /**
+     * @return Mailer
+     */
+    public function getMailer(): Mailer
+    {
+        return $this->mailer;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLogegr()
+    {
+        return $this->logegr;
     }
 }
