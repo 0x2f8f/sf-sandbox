@@ -35,8 +35,8 @@ class QuestionsCommand extends Command
         //$this->q1();
         //$this->q2();
         //$this->q3();
-
-        $this->q4();
+        //$this->q4();
+        $this->q5();
     }
 
     private function q1()
@@ -132,6 +132,29 @@ class QuestionsCommand extends Command
 //        $this->getOutput()->writeln($code);
     }
 
+    private function q5()
+    {
+        $item1 = [];
+
+        $item1['p1']='p1 before';
+        $item1['p2']='p2 before';
+
+        $link=&$item1['p2'];
+        $q=$item1;
+
+        $item1['p1']='p1 after';
+        $item1['p2']='p2 after';
+
+        print_r($q);
+
+//ожидаем
+//p1 before
+//p2 before
+
+//выводится
+// p1 before
+// p2 after
+    }
 
     /**
      * 1ый алгоритм генерации кода для Q4
